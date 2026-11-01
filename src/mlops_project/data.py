@@ -45,15 +45,15 @@ def _preprocess_features(df: pd.DataFrame) -> np.ndarray:
     # Process numeric columns
     for col in numeric_cols:
         median_val = df[col].median()
-        df[col] = df[col].fillna(median_val)
-        processed_arrays.append(df[col].values.reshape(-1, 1))
+        numeric_values = df[col].fillna(median_val).to_numpy(dtype=float)
+        processed_arrays.append(numeric_values.reshape(-1, 1))
 
     # Process categorical columns
     for col in categorical_cols:
-        df[col] = df[col].fillna("missing")
+        categorical_values = df[col].fillna("missing").to_numpy(dtype=str)
         le = LabelEncoder()
-        df[col] = le.fit_transform(df[col])
-        processed_arrays.append(df[col].values.reshape(-1, 1))
+        encoded_values = le.fit_transform(categorical_values)
+        processed_arrays.append(np.asarray(encoded_values, dtype=float).reshape(-1, 1))
 
     # Horizontally stack all processed columns
     if processed_arrays:
@@ -76,7 +76,7 @@ def build_dataset(settings: Settings, frame: pd.DataFrame | None = None):
     X = frame.drop(columns=[settings.target_column])
     # Preprocess features to numeric array
     X_processed = _preprocess_features(X)
-    labels = y.values
+    labels = y.to_numpy()
     stratify = labels if settings.problem_type == "classification" else None
     return train_test_split(
         X_processed,

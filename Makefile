@@ -19,7 +19,7 @@ rebuild:
 # Initialize DVC and set up remote
 dvc-init:
 	dvc init
-	dvc remote add -d silo s3://$(BUCKET_NAME)/datasets
+	dvc remote add -d silo s3://$(DVC_BUCKET_NAME)
 	# Enable MLflow autologging for scikit-learn (optional, we'll do manual logging)
 	# dvc config core.autostage true
 

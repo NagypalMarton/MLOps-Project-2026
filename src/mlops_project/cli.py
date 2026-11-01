@@ -2,12 +2,18 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 import mlflow
-import mlflow.sklearn
+import mlflow.sklearn as mlflow_sklearn
 from mlflow.tracking import MlflowClient
 from mlflow.exceptions import RestException
 
 import yaml
+from dataclasses import replace
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from .config import load_settings, Settings
 from .data import build_dataset
@@ -54,7 +60,16 @@ def _get_dataset_version() -> str:
     return meta["outs"][0]["md5"]
 
 
-def _log_classification_plots(y_true, y_pred, y_pred_proba, prefix="") -> None:
+def _get_git_commit() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+
+def _log_classification_plots(y_true, y_pred, y_pred_proba) -> None:
     """Log ROC curve and confusion matrix as MLflow artifacts and save to disk for DVC."""
     from sklearn.metrics import RocCurveDisplay, ConfusionMatrixDisplay
     import matplotlib.pyplot as plt
@@ -77,9 +92,65 @@ def _log_classification_plots(y_true, y_pred, y_pred_proba, prefix="") -> None:
     mlflow.log_artifact(cm_filename)
 
 
+def _settings_from_params(settings: Settings) -> Settings:
+    if not os.path.exists("params.yaml"):
+        return settings
+    with open("params.yaml", encoding="utf-8") as file:
+        params = yaml.safe_load(file) or {}
+    max_iter = params.get("model", {}).get("max_iter")
+    if max_iter is None:
+        return settings
+    return replace(settings, max_iter=int(max_iter))
+
+
+def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> None:
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+    if not tracking_uri or not tracking_uri.strip():
+        return
+
+    mlflow.set_tracking_uri(tracking_uri)
+    mlflow.set_experiment("hotel-cancel-prediction")
+    with mlflow.start_run() as run:
+        _log_settings_as_params(settings)
+        _log_params_yaml_as_params("params.yaml")
+        dvc_md5 = _get_dataset_version()
+        mlflow.log_param("dataset_version", dvc_md5)
+        mlflow.set_tag("dvc_md5", dvc_md5)
+        mlflow.set_tag("git_commit", _get_git_commit())
+        for key, value in metrics.items():
+            mlflow.log_metric(key, value)
+        mlflow_sklearn.log_model(model, "model")
+        if settings.problem_type == "classification":
+            _log_classification_plots(y_test, y_pred, y_pred_proba)
+
+        model_name = "hotel-cancel-predictor"
+        client = MlflowClient()
+        try:
+            client.get_registered_model(model_name)
+        except RestException:
+            client.create_registered_model(model_name)
+        version = client.create_model_version(
+            name=model_name,
+            source=f"runs:/{run.info.run_id}/model",
+            run_id=run.info.run_id,
+        )
+        metric_name = "f1" if settings.problem_type == "classification" else "r2"
+        versions = client.search_model_versions(filter_string=f"name='{model_name}'")
+        best_version = max(
+            (
+                (v.version, client.get_run(v.run_id).data.metrics.get(metric_name, 0.0))
+                for v in versions
+                if v.run_id
+            ),
+            key=lambda item: item[1],
+            default=(None, -1.0),
+        )[0]
+        if version.version == best_version:
+            client.set_registered_model_alias(model_name, "staging", version.version)
+
+
 def main() -> None:
-    # Load settings
-    settings = load_settings()
+    settings = _settings_from_params(load_settings())
 
     # Load and split data
     x_train, x_test, y_train, y_test = build_dataset(settings)
@@ -106,67 +177,10 @@ def main() -> None:
     print("Metrics:")
     print(json.dumps(metrics, indent=2))
 
-    # MLflow integration - only attempt if tracking URI is set
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
-    if tracking_uri and tracking_uri.strip():
-        try:
-            mlflow.set_tracking_uri(tracking_uri)
-            mlflow.set_experiment("hotel-cancel-prediction")
-            with mlflow.start_run() as run:
-                # Log parameters
-                _log_settings_as_params(settings)
-                _log_params_yaml_as_params("params.yaml")
-                dataset_version = _get_dataset_version()
-                mlflow.log_param("dataset_version", dataset_version)
-
-                # Log metrics
-                for key, value in metrics.items():
-                    mlflow.log_metric(key, value)
-
-                # Log model
-                mlflow.sklearn.log_model(model, "model")
-
-                # For classification, log plots
-                if settings.problem_type == "classification":
-                    _log_classification_plots(y_test, y_pred, y_pred_proba)
-
-                # Register model and update alias if it's the best
-                model_name = "hotel-cancel-predictor"
-                client = MlflowClient()
-                try:
-                    client.get_registered_model(model_name)
-                except RestException:
-                    client.create_registered_model(model_name)
-
-                # Create a new version of the model from this run
-                model_uri = f"runs://{run.info.run_id}/model"
-                version = client.create_model_version(
-                    name=model_name,
-                    source=model_uri,
-                    run_id=run.info.run_id
-                )
-
-                # Find the best version based on F1-score (for classification) or R2 (for regression)
-                versions = client.get_model_versions(filter_string=f"name='{model_name}'")
-                best_version = None
-                best_metric = -1.0
-                metric_name = "f1" if settings.problem_type == "classification" else "r2"
-                for v in versions:
-                    v_run = client.get_run(v.run_id)
-                    metric_value = v_run.data.metrics.get(metric_name, 0.0)
-                    if metric_value > best_metric:
-                        best_metric = metric_value
-                        best_version = v.version
-
-                # If this version is the best, set the "staging" alias
-                if version.version == best_version:
-                    client.set_registered_model_alias(model_name, "staging", version.version)
-        except Exception as e:
-            # If any MLstep fails, we just print a warning and continue without MLflow
-            print(f"Warning: MLflow logging failed: {e}. Continuing without MLflow.")
-    else:
-        # No tracking URI set, skip MLflow entirely
-        print("Info: MLFLOW_TRACKING_URI not set, skipping MLflow.")
+    try:
+        log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba)
+    except Exception as e:
+        raise RuntimeError("MLflow tracking or model registration failed.") from e
 
 
 if __name__ == "__main__":

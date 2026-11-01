@@ -28,6 +28,7 @@ data/*.csv
 # MLflow
 mlruns/
 mlartifacts/
+plots/
 
 # Pickle
 *.pickle

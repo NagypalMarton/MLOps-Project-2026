@@ -5,7 +5,6 @@ stages:
       - data/hotel_bookings.csv
       - src/mlops_project/config.py
       - src/mlops_project/data.py
-      - params.yaml
     outs:
       - data/prepared.csv
   train:
@@ -16,6 +15,7 @@ stages:
       - src/mlops_project/data.py
       - src/mlops_project/model.py
       - src/mlops_project/train.py
+      - src/mlops_project/cli.py
       - params.yaml
     outs:
       - model/model.pkl
@@ -28,7 +28,6 @@ stages:
       - src/mlops_project/data.py
       - src/mlops_project/model.py
       - src/mlops_project/evaluate.py
-      - params.yaml
-    outs:
-      - metrics/metrics.json
-    cache: false
+    metrics:
+      - metrics/metrics.json:
+          cache: false

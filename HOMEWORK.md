@@ -7,7 +7,7 @@ Full briefs live in the course materials under `homework/`.
 | Milestone | Released | Week due | What you add to this repo |
 | :--- | :--- | :--- | :--- |
 | **Define Project Topic** | 2 | 2 | Add your dataset under `data/`, fill `docs/DATA_DICTIONARY.md`, write `docs/proposal.md`, set `.env`. Baseline runs. |
-| **HW1** | 5 | 6 | DVC + MinIO data versioning; MLflow experiment tracking; register the first model version. |
+| **HW1** | 5 | 6 | DVC + Silo data versioning; MLflow experiment tracking; register the first model version. |
 | **HW2** | 7 | 8 | Pandera data validation; an evaluation gate with a documented go/no-go threshold. |
 | **HW3** | 9 | 10 | A Prefect flow (prepare → validate → train → evaluate → register) with parameters + retries. |
 | **HW4** | 11 | 12 | Serve the registered model with KServe; document a rollout; add smoke tests. |

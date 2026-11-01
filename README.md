@@ -33,8 +33,8 @@ the model.
 ## Dataset Information (Tracked with DVC)
 
 - **Pointer file**: `data/hotel_bookings.csv.dvc`
-- **MD5 hash**: `36da11599618377f461ccbacde931548`
-- **Size**: 33,949,982 bytes (~33.9 MB)
+- **MD5 hash**: `20e00e5ba40f5ee6bcd9b87fbf2670f9`
+- **Size**: 17,055,512 bytes (~17.1 MB)
 - **Dimensions**: 119,390 rows × 32 columns
 - **Target column**: `is_canceled` (binary classification)
 
@@ -42,7 +42,8 @@ the model.
 
 ### 1. Environment Setup (without infrastructure)
 ```bash
-cp .env.example .env          # set DATA_PATH, TARGET_COLUMN, PROBLEM_TYPE
+# PowerShell: Copy-Item .env.example .env
+# POSIX shells: cp .env.example .env
 uv sync --all-groups
 uv run pytest -v              # green immediately (synthetic data)
 # drop your dataset in data/ and:
@@ -55,10 +56,13 @@ uv run python src/main.py     # baseline metrics on your data
 make up                       # or: docker compose up -d --wait
 
 # Initialize DVC (first time only)
-make dvc-init                 # or: dvc init && dvc remote add -d silo s3://$(BUCKET_NAME)/datasets
+make dvc-init                 # or: dvc init && dvc remote add -d silo s3://$(BUCKET_NAME)
 
 # Execute the full pipeline
 make repro                    # or: dvc repro
+
+# Find MLflow runs trained on the current DVC dataset version
+runs-for-data
 
 # View pipeline DAG
 make dag                      # or: dvc dag
@@ -66,6 +70,11 @@ make dag                      # or: dvc dag
 # Stop infrastructure when done
 make down                     # or: docker compose down
 ```
+
+`docker compose up -d --wait` builds the current MLflow image, starts Postgres
+and Silo, and creates `mlops-bucket` idempotently. MLflow is available at
+`http://localhost:5000`; Silo's API and console are at ports `9000` and `9001`.
+The Silo remote uses `http://localhost:9000` from the host.
 
 ## Next
 

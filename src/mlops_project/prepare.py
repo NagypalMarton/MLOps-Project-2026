@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 
 from .config import Settings, load_settings
-from .data import _preprocess_features, build_dataset
+from .data import build_dataset
 
 
-def prepare_data(settings: Settings = None) -> tuple:
+def prepare_data(settings: Settings | None = None) -> tuple:
     """
     Prepare the dataset: load, preprocess features, and split.
     
@@ -34,8 +32,6 @@ def save_prepared_data(X_train, X_test, y_train, y_test, filepath: str = "data/p
     but for DVC visibility and simplicity, we save as CSV.
     """
     # Combine train and test data with a split indicator
-    train_len = len(X_train)
-    
     # Create dataframes
     X_train_df = pd.DataFrame(X_train, columns=[f"feature_{i}" for i in range(X_train.shape[1])])
     X_test_df = pd.DataFrame(X_test, columns=[f"feature_{i}" for i in range(X_test.shape[1])])
@@ -51,3 +47,7 @@ def save_prepared_data(X_train, X_test, y_train, y_test, filepath: str = "data/p
     # Combine and save
     combined_df = pd.concat([X_train_df, X_test_df], ignore_index=True)
     combined_df.to_csv(filepath, index=False)
+
+
+if __name__ == "__main__":
+    prepare_data()
