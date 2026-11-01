@@ -19,7 +19,6 @@ coverage.xml
 .env
 
 # DVC
-.dvc/
 .dvc/cache
 .dvc/tmp
 .dvc/state

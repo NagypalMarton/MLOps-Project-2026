@@ -1,7 +1,7 @@
 name: mlops-hw1
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:15-alpine
     container_name: mlops-hw1-postgres
     restart: unless-stopped
     env_file:
@@ -29,17 +29,20 @@ services:
       - "9000:9000"
       - "9001:9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/silo/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   mlflow:
-    image: mlflow/mlflow:latest
+    image: week04-dvc-introduction-starter-mlflow:latest
     container_name: mlops-hw1-mlflow
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
     command: >
       mlflow server
       --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}

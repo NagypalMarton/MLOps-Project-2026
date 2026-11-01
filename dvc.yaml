@@ -1,16 +1,34 @@
 stages:
-  train_and_evaluate:
-    cmd: >-
-      python -m mlops_project.cli
+  prepare:
+    cmd: python -m mlops_project.prepare
     deps:
       - data/hotel_bookings.csv
       - src/mlops_project/config.py
       - src/mlops_project/data.py
+      - params.yaml
+    outs:
+      - data/prepared.csv
+  train:
+    cmd: python -m mlops_project.train
+    deps:
+      - data/prepared.csv
+      - src/mlops_project/config.py
+      - src/mlops_project/data.py
       - src/mlops_project/model.py
-      - src/mlops_project/cli.py
+      - src/mlops_project/train.py
       - params.yaml
     outs:
       - model/model.pkl
-      - metrics.json
-      - plots/roc_curve.png
-      - plots/confusion_matrix.png
+  evaluate:
+    cmd: python -m mlops_project.evaluate
+    deps:
+      - model/model.pkl
+      - data/prepared.csv
+      - src/mlops_project/config.py
+      - src/mlops_project/data.py
+      - src/mlops_project/model.py
+      - src/mlops_project/evaluate.py
+      - params.yaml
+    outs:
+      - metrics/metrics.json
+    cache: false

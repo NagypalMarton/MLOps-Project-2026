@@ -7,6 +7,8 @@ import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 from mlflow.exceptions import RestException
 
+import yaml
+
 from .config import load_settings, Settings
 from .data import build_dataset
 from .model import build_model, evaluate_model
@@ -78,7 +80,32 @@ def _log_classification_plots(y_true, y_pred, y_pred_proba, prefix="") -> None:
 def main() -> None:
     # Load settings
     settings = load_settings()
-    
+
+    # Load and split data
+    x_train, x_test, y_train, y_test = build_dataset(settings)
+
+    # Build and train model
+    model = build_model(settings)
+    model.fit(x_train, y_train)
+
+    # Evaluate model
+    if settings.problem_type == "classification":
+        y_pred = model.predict(x_test)
+        y_pred_proba = model.predict_proba(x_test)[:, 1]  # probability of positive class
+    else:
+        y_pred = model.predict(x_test)
+        y_pred_proba = None
+
+    metrics = evaluate_model(model, x_test, y_test, settings)
+
+    # Print results to console (original behavior)
+    print(f"Project baseline — {settings.problem_type}")
+    print(f"Dataset:   {settings.data_path.name}")
+    print(f"Target:    {settings.target_column}")
+    print(f"Train/Test: {len(x_train)} / {len(x_test)} rows (seed {settings.random_seed})")
+    print("Metrics:")
+    print(json.dumps(metrics, indent=2))
+
     # MLflow integration - only attempt if tracking URI is set
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if tracking_uri and tracking_uri.strip():
@@ -91,23 +118,6 @@ def main() -> None:
                 _log_params_yaml_as_params("params.yaml")
                 dataset_version = _get_dataset_version()
                 mlflow.log_param("dataset_version", dataset_version)
-
-                # Load and split data
-                x_train, x_test, y_train, y_test = build_dataset(settings)
-
-                # Build and train model
-                model = build_model(settings)
-                model.fit(x_train, y_train)
-
-                # Evaluate model and get predictions for plotting
-                if settings.problem_type == "classification":
-                    y_pred = model.predict(x_test)
-                    y_pred_proba = model.predict_proba(x_test)[:, 1]  # probability of positive class
-                else:
-                    y_pred = model.predict(x_test)
-                    y_pred_proba = None
-
-                metrics = evaluate_model(model, x_test, y_test, settings)
 
                 # Log metrics
                 for key, value in metrics.items():
@@ -157,24 +167,6 @@ def main() -> None:
     else:
         # No tracking URI set, skip MLflow entirely
         print("Info: MLFLOW_TRACKING_URI not set, skipping MLflow.")
-
-    # Load and split data (outside MLflow block so we always have it for printing)
-    x_train, x_test, y_train, y_test = build_dataset(settings)
-
-    # Build and train model
-    model = build_model(settings)
-    model.fit(x_train, y_train)
-
-    # Evaluate model
-    metrics = evaluate_model(model, x_test, y_test, settings)
-
-    # Print results to console (original behavior)
-    print(f"Project baseline — {settings.problem_type}")
-    print(f"Dataset:   {settings.data_path.name}")
-    print(f"Target:    {settings.target_column}")
-    print(f"Train/Test: {len(x_train)} / {len(x_test)} rows (seed {settings.random_seed})")
-    print("Metrics:")
-    print(json.dumps(metrics, indent=2))
 
 
 if __name__ == "__main__":
