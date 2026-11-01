@@ -28,11 +28,11 @@ in Silo under the DVC layout
 Fresh-clone verification:
 
 ```text
-> git clone <repository-url> hw1-fresh-clone
+> git clone https://github.com/NagypalMarton/MLOps-Project-2026.git hw1-fresh-clone
 > cd hw1-fresh-clone
 > uv sync --all-groups
 > uv run dvc pull
-1 file added and 2 files fetched
+3 files fetched and 3 files added
 > Get-FileHash data/hotel_bookings.csv -Algorithm MD5
 Hash: 20E00E5BA40F5EE6BCD9B87FBF2670F9
 ```
@@ -79,6 +79,17 @@ Data and pipelines are up to date.
 Changing `model.max_iter` in `params.yaml` marks `train` stale and causes
 `evaluate` to follow it; `prepare` remains cached.
 
+For example, changing `max_iter` from 1000 to 500 produced:
+
+```text
+Stage 'prepare' didn't change, skipping
+Running stage 'train':
+> python -m mlops_project.train
+Updating lock file 'dvc.lock'
+Running stage 'evaluate':
+> python -m mlops_project.evaluate
+```
+
 ## R7: MLflow tracking and registry
 
 The named experiment is `hotel-cancel-prediction`. Each run logs the settings,
@@ -87,15 +98,15 @@ tag. Four comparison runs were executed:
 
 | max_iter | F1 | run_id |
 |---:|---:|---|
-| 100 | 0.786 | `be31a762fa6c4c5098f189482f90caec` |
-| 500 | 0.786 | `8620fd7a792d47d2b324cfb9883f1660` |
-| 1000 | 0.786 | `e2d98b662ebf4f2b9a8341821b63b49f` |
-| 2000 | 0.786 | `167ebb6f1f2e42fe8aac915adb3bf120` |
+| 100 | 0.786 | `c36b952ce5294bc4a80cf994cfe6e007` |
+| 500 | 0.786 | `ae7c1f9c5eb347f6a16abd965700b2d1` |
+| 1000 | 0.786 | `b6b064cf86ce495f81a5757da77801d5` |
+| 2000 | 0.786 | `b307a2d0ad39470997d8f38d7abacdf7` |
 
 F1 is the primary metric because cancellation classes are imbalanced and the
 metric balances precision and recall. The registered model is
-`hotel-cancel-predictor`; version `6` is assigned the `staging` alias and its
-`run_id` is `167ebb6f1f2e42fe8aac915adb3bf120`.
+`hotel-cancel-predictor`; version `12` is assigned the `staging` alias and its
+`run_id` is `b307a2d0ad39470997d8f38d7abacdf7`.
 
 The DVC `train` stage uses the same MLflow logging path as the CLI, so pipeline
 training runs also receive `dvc_md5`, `git_commit`, parameters, metrics, and a
@@ -105,7 +116,10 @@ logged model. The Lab 4 lookup command is:
 > runs-for-data
 Searching for runs with tags.dvc_md5 = '20e00e5ba40f5ee6bcd9b87fbf2670f9'
 run_id tags.mlflow.runName params.max_iter metrics.f1 tags.git_commit
-...
+b307a2d0ad39470997d8f38d7abacdf7 intrigued-wren-729 2000 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
+b6b064cf86ce495f81a5757da77801d5 wistful-shrimp-121 1000 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
+ae7c1f9c5eb347f6a16abd965700b2d1 resilient-fish-716 500 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
+c36b952ce5294bc4a80cf994cfe6e007 burly-gnat-966 100 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
 
-8 run(s).
+4 run(s) are shown for the comparison.
 ```
