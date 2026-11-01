@@ -21,12 +21,22 @@ compose.yaml         Docker Compose file for local services (Postgres, Silo, MLf
 Makefile             Convenience commands for infrastructure and pipeline
 pyproject.toml       Project dependencies and metadata
 uv.lock              Locked dependencies (committed)
+.dvc/config          DVC configuration (committed)
+data/hotel_bookings.csv.dvc  DVC pointer file (committed)
 ```
 
 The baseline trains a scikit-learn `StandardScaler` + (logistic or linear)
 regression on a CSV you point it at — classification or regression, set by
 `PROBLEM_TYPE`. It's deliberately simple; the course is about the lifecycle, not
 the model.
+
+## Dataset Information (Tracked with DVC)
+
+- **Pointer file**: `data/hotel_bookings.csv.dvc`
+- **MD5 hash**: `36da11599618377f461ccbacde931548`
+- **Size**: 33,949,982 bytes (~33.9 MB)
+- **Dimensions**: 119,390 rows × 32 columns
+- **Target column**: `is_canceled` (binary classification)
 
 ## Quick start
 
