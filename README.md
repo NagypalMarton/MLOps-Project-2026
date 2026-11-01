@@ -72,7 +72,8 @@ make down                     # or: docker compose down
 ```
 
 `docker compose up -d --wait` builds the current MLflow image, starts Postgres
-and Silo, and creates `mlops-bucket` idempotently. MLflow is available at
+and Silo, and creates the `mlflow-artifacts` and `dvc-data` buckets idempotently.
+MLflow is available at
 `http://localhost:5000`; Silo's API and console are at ports `9000` and `9001`.
 The Silo remote uses `http://localhost:9000` from the host.
 

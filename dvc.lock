@@ -33,8 +33,8 @@ stages:
       size: 55
     - path: src/mlops_project/cli.py
       hash: md5
-      md5: 0614ecb9662e4310af5d2c472fb06749
-      size: 6625
+      md5: 35dfbcd5a0e364ac080b19a0d4a59499
+      size: 6990
     - path: src/mlops_project/config.py
       hash: md5
       md5: 26f60330aa6978f68e372b44ff798bbb

@@ -110,16 +110,49 @@ metric balances precision and recall. The registered model is
 
 The DVC `train` stage uses the same MLflow logging path as the CLI, so pipeline
 training runs also receive `dvc_md5`, `git_commit`, parameters, metrics, and a
-logged model. The Lab 4 lookup command is:
+logged model. Each run also receives `dvc_remote_uri=s3://dvc-data`, which is
+the default remote in `.dvc/config` (with endpoint
+`http://localhost:9000`). The Lab 4 lookup command is:
 
 ```text
 > runs-for-data
 Searching for runs with tags.dvc_md5 = '20e00e5ba40f5ee6bcd9b87fbf2670f9'
-run_id tags.mlflow.runName params.max_iter metrics.f1 tags.git_commit
-b307a2d0ad39470997d8f38d7abacdf7 intrigued-wren-729 2000 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
-b6b064cf86ce495f81a5757da77801d5 wistful-shrimp-121 1000 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
-ae7c1f9c5eb347f6a16abd965700b2d1 resilient-fish-716 500 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
-c36b952ce5294bc4a80cf994cfe6e007 burly-gnat-966 100 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4
+run_id tags.mlflow.runName params.max_iter metrics.f1 tags.git_commit tags.dvc_remote_uri
+adc69a21eb1649e8916a6d48707c2639 exultant-finch-248 1000 0.786 6c508a728d91923241d506216e351a2849c4c646 s3://dvc-data
+c36b952ce5294bc4a80cf994cfe6e007 burly-gnat-966 100 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4 s3://dvc-data
+ae7c1f9c5eb347f6a16abd965700b2d1 resilient-fish-716 500 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4 s3://dvc-data
+b6b064cf86ce495f81a5757da77801d5 wistful-shrimp-121 1000 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4 s3://dvc-data
+b307a2d0ad39470997d8f38d7abacdf7 intrigued-wren-729 2000 0.786 02c6f8f7344a63d1db222cf018da2305b5b0fba4 s3://dvc-data
 
-4 run(s) are shown for the comparison.
+11 run(s).
 ```
+
+## R8-R9: Traceability chain
+
+The registered model can be followed end to end using the MLflow server and
+the committed DVC files:
+
+```text
+hotel-cancel-predictor@staging
+  -> model version 17
+  -> run adc69a21eb1649e8916a6d48707c2639
+  -> params.max_iter=1000, metrics.f1=0.786
+  -> git commit 6c508a728d91923241d506216e351a2849c4c646
+  -> data md5 20e00e5ba40f5ee6bcd9b87fbf2670f9
+  -> DVC remote s3://dvc-data, endpoint http://localhost:9000
+```
+
+The alias resolves to version 17 in the Model Registry; that version exposes
+the run ID. The run's parameters, metric, and tags are visible through its
+MLflow run page or API. The commit contains the pointer whose MD5 is shown in
+the run's `dvc_md5` tag, and `.dvc/config` maps the DVC remote URI to Silo.
+
+## R10: Reflection
+
+The hardest issue was making the current MLflow image work with both PostgreSQL
+metadata and Silo artifacts. The initial container lacked the required
+PostgreSQL/S3 drivers and an older cached image produced database schema errors.
+I diagnosed this from the MLflow container logs and failed pipeline runs, then
+fixed it by building the current MLflow image with `psycopg[binary]` and
+`boto3`, and verified the complete stack with `docker compose up -d --wait`,
+MLflow registration, and the `runs-for-data` lookup.

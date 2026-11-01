@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import sys
+from configparser import ConfigParser
 import mlflow
 import mlflow.sklearn as mlflow_sklearn
 from mlflow.tracking import MlflowClient
@@ -58,6 +59,15 @@ def _get_dataset_version() -> str:
     with open(dvc_file, "r") as f:
         meta = yaml.safe_load(f)
     return meta["outs"][0]["md5"]
+
+
+def _get_dvc_remote_uri() -> str:
+    config = ConfigParser()
+    config.read(".dvc/config", encoding="utf-8")
+    section = '\'remote "silo"\''
+    if config.has_option(section, "url"):
+        return config.get(section, "url")
+    return "unknown"
 
 
 def _get_git_commit() -> str:
@@ -116,6 +126,7 @@ def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> No
         dvc_md5 = _get_dataset_version()
         mlflow.log_param("dataset_version", dvc_md5)
         mlflow.set_tag("dvc_md5", dvc_md5)
+        mlflow.set_tag("dvc_remote_uri", _get_dvc_remote_uri())
         mlflow.set_tag("git_commit", _get_git_commit())
         for key, value in metrics.items():
             mlflow.log_metric(key, value)

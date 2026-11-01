@@ -31,7 +31,10 @@ def main() -> None:
         filter_string=f"tags.dvc_md5 = '{dvc_md5}'",
         order_by=["start_time ASC"],
     )
-    print("run_id tags.mlflow.runName params.max_iter metrics.f1 tags.git_commit")
+    print(
+        "run_id tags.mlflow.runName params.max_iter metrics.f1 "
+        "tags.git_commit tags.dvc_remote_uri"
+    )
     for run in runs:
         print(
             run.info.run_id,
@@ -39,6 +42,7 @@ def main() -> None:
             run.data.params.get("max_iter", ""),
             run.data.metrics.get("f1", ""),
             run.data.tags.get("git_commit", ""),
+            run.data.tags.get("dvc_remote_uri", ""),
         )
     print(f"\n{len(runs)} run(s).")
 
