@@ -1,0 +1,59 @@
+name: mlops-hw1
+services:
+  postgres:
+    image: postgres:latest
+    container_name: mlops-hw1-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  silo:
+    image: pgsty/silo:latest
+    container_name: mlops-hw1-silo
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    volumes:
+      - silo_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/silo/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mlflow:
+    image: mlflow/mlflow:latest
+    container_name: mlops-hw1-mlflow
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      --default-artifact-root s3://mlops-bucket/mlflow-artifacts/
+      --host 0.0.0.0
+      --port 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  silo_data:

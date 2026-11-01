@@ -17,6 +17,10 @@ tests/               smoke tests that pass on synthetic data (no dataset needed)
 data/                put your dataset here (see data/README.md)
 docs/                DATA_DICTIONARY.md (fill it in) + your proposal
 .env.example         configuration — copy to .env
+compose.yaml         Docker Compose file for local services (Postgres, Silo, MLflow)
+Makefile             Convenience commands for infrastructure and pipeline
+pyproject.toml       Project dependencies and metadata
+uv.lock              Locked dependencies (committed)
 ```
 
 The baseline trains a scikit-learn `StandardScaler` + (logistic or linear)
@@ -26,6 +30,7 @@ the model.
 
 ## Quick start
 
+### 1. Environment Setup (without infrastructure)
 ```bash
 cp .env.example .env          # set DATA_PATH, TARGET_COLUMN, PROBLEM_TYPE
 uv sync --all-groups
@@ -34,10 +39,31 @@ uv run pytest -v              # green immediately (synthetic data)
 uv run python src/main.py     # baseline metrics on your data
 ```
 
-Prerequisites: `uv` (https://docs.astral.sh/uv/) and Python 3.12+ (uv installs it).
+### 2. With Local Services (for HW1+)
+```bash
+# Start infrastructure (PostgreSQL, Silo, MLflow)
+make up                       # or: docker compose up -d --wait
+
+# Initialize DVC (first time only)
+make dvc-init                 # or: dvc init && dvc remote add -d silo s3://$(BUCKET_NAME)/datasets
+
+# Execute the full pipeline
+make repro                    # or: dvc repro
+
+# View pipeline DAG
+make dag                      # or: dvc dag
+
+# Stop infrastructure when done
+make down                     # or: docker compose down
+```
 
 ## Next
 
 1. Add your dataset to `data/` and document it in `docs/DATA_DICTIONARY.md`.
 2. Write your one-page proposal in `docs/proposal.md` (Week 2 milestone).
 3. Follow [`HOMEWORK.md`](HOMEWORK.md) from HW1 onward.
+
+## Prerequisites
+- `uv` (https://docs.astral.sh/uv/)
+- Docker Engine
+- Python 3.12+ (uv installs it)

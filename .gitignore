@@ -4,8 +4,88 @@
 # Python
 .venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 .pytest_cache/
+.env
 
-# OS
+# DVC
+.dvc/
+.dvc/cache
+.dvc/tmp
+.dvc/state
+data/*.csv
+!data/.gitkeep
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Pickle
+*.pickle
+
+# Joblib
+*.joblib
+
+# macOS
 .DS_Store
+*.ls^
+Icon?
+._*
+
+# Thumbnails
+_thumbs
+
+# Logs
+logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Cache
+.cache
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMaker parsed files
+*.env.out
+
+# Pandas
+*.pkl
+
+# TensorFlow
+*.meta
+*/checkpoints*/*
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.suo
+
+# Others
+*~

@@ -1,0 +1,16 @@
+stages:
+  train_and_evaluate:
+    cmd: >-
+      python -m mlops_project.cli
+    deps:
+      - data/hotel_bookings.csv
+      - src/mlops_project/config.py
+      - src/mlops_project/data.py
+      - src/mlops_project/model.py
+      - src/mlops_project/cli.py
+      - params.yaml
+    outs:
+      - model/model.pkl
+      - metrics.json
+      - plots/roc_curve.png
+      - plots/confusion_matrix.png
