@@ -1,4 +1,4 @@
-.PHONY: up down logs rebuild dvc-init repro dag trace
+.PHONY: up down logs rebuild repro dag
 
 # Bring up the local services stack
 up:
@@ -16,13 +16,6 @@ logs:
 rebuild:
 	docker compose up -d --wait --build
 
-# Initialize DVC and set up remote
-dvc-init:
-	dvc init
-	dvc remote add -d silo s3://$(DVC_BUCKET_NAME)
-	# Enable MLflow autologging for scikit-learn (optional, we'll do manual logging)
-	# dvc config core.autostage true
-
 # Run the entire pipeline (only re-runs changed stages)
 repro:
 	dvc repro
@@ -30,12 +23,3 @@ repro:
 # Show the pipeline DAG
 dag:
 	dvc dag
-
-# Show the pipeline trace (inputs -> outputs)
-trace:
-	dvc traces
-
-# Helper target to show environment variables (for debugging)
-env:
-	@echo "BUCKET_NAME=$(BUCKET_NAME)"
-	@echo "MLFLOW_TRACKING_URI=$(MLFLOW_TRACKING_URI)"

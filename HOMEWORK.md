@@ -16,11 +16,11 @@ Full briefs live in the course materials under `homework/`.
 ## Start here
 
 ```bash
-cp .env.example .env          # then set DATA_PATH, TARGET_COLUMN, PROBLEM_TYPE
+cp .env.example .env          # then set DATA_PATH and TARGET_COLUMN
 uv sync --all-groups
 uv run pytest -v              # green on synthetic data, no dataset needed
-# add your dataset to data/, then:
-uv run python src/main.py     # baseline metrics on your data
+# run the DVC pipeline after the services are available:
+dvc repro
 ```
 
 Keep each homework's work in this repo's history (commits/PRs) — that history is

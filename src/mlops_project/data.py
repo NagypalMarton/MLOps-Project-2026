@@ -9,7 +9,7 @@ from .config import Settings
 
 
 def load_dataframe(settings: Settings) -> pd.DataFrame:
-    """Load your dataset CSV (set DATA_PATH in .env)."""
+    """Load the hotel bookings dataset."""
     if not settings.data_path.exists():
         raise FileNotFoundError(
             f"Dataset not found: {settings.data_path}\n"
@@ -64,7 +64,7 @@ def _preprocess_features(df: pd.DataFrame) -> np.ndarray:
 
 
 def build_dataset(settings: Settings, frame: pd.DataFrame | None = None):
-    """Split into train/test. Stratifies on the target for classification."""
+    """Preprocess and stratified-split the dataset."""
     frame = load_dataframe(settings) if frame is None else frame
     if settings.target_column not in frame.columns:
         raise KeyError(
@@ -77,11 +77,10 @@ def build_dataset(settings: Settings, frame: pd.DataFrame | None = None):
     # Preprocess features to numeric array
     X_processed = _preprocess_features(X)
     labels = y.to_numpy()
-    stratify = labels if settings.problem_type == "classification" else None
     return train_test_split(
         X_processed,
         labels,
         test_size=settings.test_size,
         random_state=settings.random_seed,
-        stratify=stratify,
+        stratify=labels,
     )

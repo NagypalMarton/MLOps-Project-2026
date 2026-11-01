@@ -19,18 +19,6 @@ def train_model(
     settings: Settings | None = None,
     model_output_path: str = "model/model.pkl",
 ) -> Pipeline:
-    """
-    Train the model and save it to disk.
-    
-    Args:
-        X_train: Training features
-        y_train: Training target
-        settings: Settings object (optional, will load if not provided)
-        model_output_path: Path to save the trained model
-    
-    Returns:
-        Pipeline: Trained scikit-learn pipeline
-    """
     if settings is None:
         settings = load_settings()
     if os.path.exists("params.yaml"):
@@ -40,13 +28,8 @@ def train_model(
         if max_iter is not None:
             settings = replace(settings, max_iter=int(max_iter))
     
-    # Build the model (pipeline) using the existing function
     model = build_model(settings)
-    
-    # Fit the model
     model.fit(X_train, y_train)
-    
-    # Save the model to disk
     os.makedirs(os.path.dirname(model_output_path), exist_ok=True)
     joblib.dump(model, model_output_path)
     
@@ -72,9 +55,5 @@ if __name__ == "__main__":
     model = train_model(X_train, y_train, settings)
     metrics = evaluate_model(model, X_test, y_test, settings)
     predictions = model.predict(X_test)
-    probabilities = (
-        model.predict_proba(X_test)[:, 1]
-        if settings.problem_type == "classification"
-        else None
-    )
+    probabilities = model.predict_proba(X_test)[:, 1]
     log_mlflow_run(settings, model, metrics, y_test, predictions, probabilities)

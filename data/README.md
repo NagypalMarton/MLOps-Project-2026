@@ -1,12 +1,6 @@
 # data/
 
-Put your project dataset here (e.g. `data/dataset.csv`) and set `DATA_PATH` in
-`.env`. Until then, `uv run python src/main.py` will tell you the file is
-missing — that's expected. The tests run on synthetic data, so `pytest` is green
-without a dataset.
-
-You may commit the CSV here for now if its size and license allow. From **HW1
-(Week 5)** you will version it with **DVC + Silo** instead of committing it to
-git — at that point this folder holds a `.dvc` pointer, not the raw file.
-
-Document your data in `docs/DATA_DICTIONARY.md` before you start building.
+The project uses `hotel_bookings.csv`, tracked by DVC through
+`hotel_bookings.csv.dvc`. The raw CSV is restored with `dvc pull`; it is not
+committed to Git. The backup and archive files are retained as dataset
+artifacts, but are not used by the pipeline.

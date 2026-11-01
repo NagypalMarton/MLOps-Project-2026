@@ -1,8 +1,8 @@
 # My MLOps Project
 
 Your semester-long project for **Lifecycle of Artificial Intelligence Systems**.
-You start from this minimal, working baseline and grow it into a full MLOps
-project across HW1–HW5 — see [`HOMEWORK.md`](HOMEWORK.md).
+This repository contains the HW1 implementation for a full MLOps project;
+later homework stages are described in [`HOMEWORK.md`](HOMEWORK.md).
 
 This repo is **separate from the course materials**. The course repo (lectures,
 labs, datasets, homework briefs) you read and do the labs in; *this* repo is your
@@ -11,8 +11,7 @@ own project, on your own dataset, and is what gets graded.
 ## What's here
 
 ```
-src/mlops_project/   config.py · data.py · model.py · cli.py   (a simple baseline pipeline)
-src/main.py          entry point
+src/mlops_project/   pipeline, MLflow tracking, and the runs-for-data CLI
 tests/               smoke tests that pass on synthetic data (no dataset needed)
 data/                put your dataset here (see data/README.md)
 docs/                DATA_DICTIONARY.md (fill it in) + your proposal
@@ -25,10 +24,9 @@ uv.lock              Locked dependencies (committed)
 data/hotel_bookings.csv.dvc  DVC pointer file (committed)
 ```
 
-The baseline trains a scikit-learn `StandardScaler` + (logistic or linear)
-regression on a CSV you point it at — classification or regression, set by
-`PROBLEM_TYPE`. It's deliberately simple; the course is about the lifecycle, not
-the model.
+The project predicts whether a hotel booking will be cancelled. It uses
+scikit-learn `StandardScaler` and logistic regression, with categorical
+encoding, missing-value handling, and leakage-column removal.
 
 ## Dataset Information (Tracked with DVC)
 
@@ -46,17 +44,12 @@ the model.
 # POSIX shells: cp .env.example .env
 uv sync --all-groups
 uv run pytest -v              # green immediately (synthetic data)
-# drop your dataset in data/ and:
-uv run python src/main.py     # baseline metrics on your data
 ```
 
 ### 2. With Local Services (for HW1+)
 ```bash
 # Start infrastructure (PostgreSQL, Silo, MLflow)
 make up                       # or: docker compose up -d --wait
-
-# Initialize DVC (first time only)
-make dvc-init                 # or: dvc init && dvc remote add -d silo s3://$(BUCKET_NAME)
 
 # Execute the full pipeline
 make repro                    # or: dvc repro

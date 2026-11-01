@@ -55,7 +55,7 @@ def _get_dataset_version() -> str:
     """Extract dataset version hash from the DVC file."""
     dvc_file = "data/hotel_bookings.csv.dvc"
     if not os.path.exists(dvc_file):
-        return "unknown"
+        raise FileNotFoundError(f"DVC pointer not found: {dvc_file}")
     with open(dvc_file, "r") as f:
         meta = yaml.safe_load(f)
     return meta["outs"][0]["md5"]
@@ -67,7 +67,7 @@ def _get_dvc_remote_uri() -> str:
     section = '\'remote "silo"\''
     if config.has_option(section, "url"):
         return config.get(section, "url")
-    return "unknown"
+    raise ValueError(f"DVC remote URL not found in {section}.")
 
 
 def _get_git_commit() -> str:
@@ -76,7 +76,7 @@ def _get_git_commit() -> str:
             ["git", "rev-parse", "HEAD"], text=True
         ).strip()
     except (OSError, subprocess.CalledProcessError):
-        return "unknown"
+        raise RuntimeError("Unable to determine the current Git commit.")
 
 
 def _log_classification_plots(y_true, y_pred, y_pred_proba) -> None:
@@ -116,7 +116,7 @@ def _settings_from_params(settings: Settings) -> Settings:
 def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> None:
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if not tracking_uri or not tracking_uri.strip():
-        return
+        raise EnvironmentError("MLFLOW_TRACKING_URI must be configured.")
 
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment("hotel-cancel-prediction")
@@ -131,8 +131,7 @@ def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> No
         for key, value in metrics.items():
             mlflow.log_metric(key, value)
         mlflow_sklearn.log_model(model, "model")
-        if settings.problem_type == "classification":
-            _log_classification_plots(y_test, y_pred, y_pred_proba)
+        _log_classification_plots(y_test, y_pred, y_pred_proba)
 
         model_name = "hotel-cancel-predictor"
         client = MlflowClient()
@@ -145,7 +144,7 @@ def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> No
             source=f"runs:/{run.info.run_id}/model",
             run_id=run.info.run_id,
         )
-        metric_name = "f1" if settings.problem_type == "classification" else "r2"
+        metric_name = "f1"
         versions = client.search_model_versions(filter_string=f"name='{model_name}'")
         best_version = max(
             (
@@ -171,27 +170,20 @@ def main() -> None:
     model.fit(x_train, y_train)
 
     # Evaluate model
-    if settings.problem_type == "classification":
-        y_pred = model.predict(x_test)
-        y_pred_proba = model.predict_proba(x_test)[:, 1]  # probability of positive class
-    else:
-        y_pred = model.predict(x_test)
-        y_pred_proba = None
+    y_pred = model.predict(x_test)
+    y_pred_proba = model.predict_proba(x_test)[:, 1]
 
     metrics = evaluate_model(model, x_test, y_test, settings)
 
     # Print results to console (original behavior)
-    print(f"Project baseline — {settings.problem_type}")
+    print("Hotel booking cancellation classifier")
     print(f"Dataset:   {settings.data_path.name}")
     print(f"Target:    {settings.target_column}")
     print(f"Train/Test: {len(x_train)} / {len(x_test)} rows (seed {settings.random_seed})")
     print("Metrics:")
     print(json.dumps(metrics, indent=2))
 
-    try:
-        log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba)
-    except Exception as e:
-        raise RuntimeError("MLflow tracking or model registration failed.") from e
+    log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba)
 
 
 if __name__ == "__main__":

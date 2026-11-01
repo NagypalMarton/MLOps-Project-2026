@@ -9,12 +9,12 @@ stages:
       size: 17055512
     - path: src/mlops_project/config.py
       hash: md5
-      md5: 26f60330aa6978f68e372b44ff798bbb
-      size: 1565
+      md5: 21980bb1cc8084c723bf38dbb78a9e82
+      size: 1246
     - path: src/mlops_project/data.py
       hash: md5
-      md5: 267f1ebf78ebf6cca4494a6eb4ccea1f
-      size: 3243
+      md5: a0f04485984f507cd427dca60a27f640
+      size: 3126
     outs:
     - path: data/prepared.csv
       hash: md5
@@ -33,24 +33,24 @@ stages:
       size: 55
     - path: src/mlops_project/cli.py
       hash: md5
-      md5: 35dfbcd5a0e364ac080b19a0d4a59499
-      size: 6990
+      md5: e79d193f43bb1be90d63f091ca9b5e51
+      size: 6766
     - path: src/mlops_project/config.py
       hash: md5
-      md5: 26f60330aa6978f68e372b44ff798bbb
-      size: 1565
+      md5: 21980bb1cc8084c723bf38dbb78a9e82
+      size: 1246
     - path: src/mlops_project/data.py
       hash: md5
-      md5: 267f1ebf78ebf6cca4494a6eb4ccea1f
-      size: 3243
+      md5: a0f04485984f507cd427dca60a27f640
+      size: 3126
     - path: src/mlops_project/model.py
       hash: md5
-      md5: 0e98cc04797e90947b2f66a6d94a7543
-      size: 1660
+      md5: 46881f694f7d8b7b372c1ffe1f101ee3
+      size: 1127
     - path: src/mlops_project/train.py
       hash: md5
-      md5: 3cbd4c597e7a018eb4b8b0952ab97f38
-      size: 2500
+      md5: 6fc52143af1c17dc975e27d907d64324
+      size: 1936
     outs:
     - path: model/model.pkl
       hash: md5
@@ -69,20 +69,20 @@ stages:
       size: 2257
     - path: src/mlops_project/config.py
       hash: md5
-      md5: 26f60330aa6978f68e372b44ff798bbb
-      size: 1565
+      md5: 21980bb1cc8084c723bf38dbb78a9e82
+      size: 1246
     - path: src/mlops_project/data.py
       hash: md5
-      md5: 267f1ebf78ebf6cca4494a6eb4ccea1f
-      size: 3243
+      md5: a0f04485984f507cd427dca60a27f640
+      size: 3126
     - path: src/mlops_project/evaluate.py
       hash: md5
-      md5: 7cab4f506914874b1b63d0afcd32c476
-      size: 1423
+      md5: 5c139730927924c706bbdcda012f7b11
+      size: 992
     - path: src/mlops_project/model.py
       hash: md5
-      md5: 0e98cc04797e90947b2f66a6d94a7543
-      size: 1660
+      md5: 46881f694f7d8b7b372c1ffe1f101ee3
+      size: 1127
     outs:
     - path: metrics/metrics.json
       hash: md5
