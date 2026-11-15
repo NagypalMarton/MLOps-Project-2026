@@ -273,3 +273,21 @@ Silo, or the registry remain available after the run. Those concerns require
 later drift monitoring, data lineage checks, calibration/cost analysis,
 approved fairness data, and service/infrastructure monitoring rather than
 another static threshold in this homework.
+
+## R10: Tests
+
+The gate decision is implemented as the plain-data
+[`evaluate_gate`](../src/mlops_project/gate.py) function. The focused
+[`tests/test_gate.py`](../tests/test_gate.py) suite covers a passing verdict
+with a small slice skipped, a failing absolute floor, a missing-baseline
+skipped verdict, and publication refusal. It does not read the dataset or
+contact MLflow for the gate-logic cases.
+
+With the Docker Compose services stopped, the focused suite passed:
+
+```text
+docker compose stop
+uv run pytest tests/test_gate.py -q
+....                                                                     [100%]
+4 passed in 3.77s
+```
