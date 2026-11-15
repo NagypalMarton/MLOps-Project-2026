@@ -13,3 +13,16 @@ slices:
       - No Deposit
       - Non Refund
       - Refundable
+criteria_version: "hw2-r4-v1"
+acceptance:
+  absolute_floors:
+    accuracy: 0.75
+    f1: 0.70
+  regression:
+    primary_metric: f1
+    tolerance: 0.01
+    baseline_file: metrics/baseline.json
+  slices:
+    metric: f1
+    floor: 0.70
+    min_support: 100

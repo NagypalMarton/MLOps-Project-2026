@@ -88,3 +88,68 @@ feature encoder fills missing values or applies scaling. If slicing happened
 after preprocessing, the stakeholder-facing categories would be lost or
 replaced by encoded numbers, and imputation could move a missing booking into a
 group without making that change visible in the slice table.
+
+## R4: Acceptance criteria
+
+The `acceptance` block in [`params.yaml`](../params.yaml) is versioned as
+`hw2-r4-v1`. The current measured test-set aggregate is accuracy `0.7927` and
+F1 `0.7846`. The absolute floors are therefore:
+
+- accuracy `>= 0.75`: a margin of `0.0427` below the observed model;
+- F1 `>= 0.70`: a margin of `0.0846` below the observed model.
+
+The floors are also above the trivial constant predictors. On the 29,803-row
+test set, always predicting zero scored accuracy `0.6292` and weighted F1
+`0.4860`; always predicting one scored accuracy `0.3708` and weighted F1
+`0.2006`. Thus both absolute floors reject a constant classifier rather than
+merely accepting the class-frequency baseline.
+
+The recorded regression baseline is
+[`metrics/baseline.json`](../metrics/baseline.json), taken from the committed
+HW1 aggregate at commit `4fae08d`: F1 `0.7860`. F1 is the named primary metric.
+The tolerance is `0.01`, so the regression floor is `0.7760`; the current
+`0.7846` is only `0.0014` below that recorded baseline and passes.
+
+For slices, the F1 floor is `0.70` with `min_support=100`. The smallest
+supported slice is `deposit_type=Non Refund` with `n=3,661` and F1 `0.9955`;
+the smallest defined slice is `Refundable` with only `n=34`, so it is reported
+as skipped rather than scored. The supported `No Deposit` slice has the lowest
+F1 at `0.7445`, which motivates the `0.70` floor.
+
+The criteria were selected after measuring this HW2 model and its slices, which
+is an inversion of the ideal process: a production project should agree on
+thresholds before seeing the candidate model. This limitation is recorded
+explicitly rather than pretending that these thresholds were pre-registered.
+
+## R5: Gate stage
+
+The `gate` stage reads the aggregate metrics, slice report, recorded baseline,
+and acceptance block, then writes the cache-disabled
+[`reports/gate.json`](../reports/gate.json). Its pure decision function is
+`evaluate_gate`; each check has `pass`, `fail`, or `skipped` status. Missing
+metrics/baselines and slices below `min_support` are skipped with a reason.
+The command prints the counts without opening the JSON:
+
+```text
+gate_status=pass passed=7 failed=0 skipped=1
+```
+
+The `Refundable` slice is the one skipped check. A failing floor or regression
+check exits non-zero, so `dvc repro` stops. The verdict is deterministic: it
+contains no timestamp, is written with sorted keys, and two unchanged gate
+runs produce byte-identical JSON.
+
+The NO-GO path was exercised by temporarily changing the recorded aggregate F1
+from `0.7846` to `0.6000` and running the exact gate command from the DVC
+stage:
+
+```text
+temporary_f1=0.6000
+gate_status=fail passed=5 failed=2 skipped=1
+unexpected_exit=1
+gate_status=pass passed=7 failed=0 skipped=1
+restored_gate_exit=0
+```
+
+The original metrics file and passing verdict were restored after the
+demonstration.

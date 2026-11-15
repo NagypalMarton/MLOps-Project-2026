@@ -1,0 +1,6 @@
+{
+  "source": "HW1 committed aggregate metrics at commit 4fae08d",
+  "primary_metric": "f1",
+  "accuracy": 0.7945,
+  "f1": 0.786
+}

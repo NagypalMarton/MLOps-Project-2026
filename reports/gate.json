@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "actual": 0.7927,
+      "name": "absolute_floor.accuracy",
+      "status": "pass",
+      "threshold": 0.75
+    },
+    {
+      "actual": 0.7846,
+      "name": "absolute_floor.f1",
+      "status": "pass",
+      "threshold": 0.7
+    },
+    {
+      "actual": 0.7846,
+      "name": "regression.f1",
+      "status": "pass",
+      "threshold": 0.776
+    },
+    {
+      "actual": 0.7755,
+      "name": "slice.hotel=City Hotel.f1",
+      "status": "pass",
+      "threshold": 0.7
+    },
+    {
+      "actual": 0.8023,
+      "name": "slice.hotel=Resort Hotel.f1",
+      "status": "pass",
+      "threshold": 0.7
+    },
+    {
+      "actual": 0.7445,
+      "name": "slice.deposit_type=No Deposit.f1",
+      "status": "pass",
+      "threshold": 0.7
+    },
+    {
+      "actual": 0.9955,
+      "name": "slice.deposit_type=Non Refund.f1",
+      "status": "pass",
+      "threshold": 0.7
+    },
+    {
+      "actual": 0.2767,
+      "name": "slice.deposit_type=Refundable.f1",
+      "reason": "support 34 is below min_support 100",
+      "status": "skipped",
+      "threshold": 0.7
+    }
+  ],
+  "criteria_version": "hw2-r4-v1",
+  "failed": 0,
+  "passed": 7,
+  "skipped": 1,
+  "status": "pass"
+}

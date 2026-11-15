@@ -9,8 +9,8 @@ stages:
       size: 17055512
     - path: params.yaml
       hash: md5
-      md5: 2ec2508b4ab4e24c7d88196aa6eb2125
-      size: 266
+      md5: 03a7e94504f05c40073c187a232b3930
+      size: 519
     - path: reports/validation.json
       hash: md5
       md5: 02e22e66ea2b9dbe0dabdc488036fcd9
@@ -41,8 +41,8 @@ stages:
       size: 19237864
     - path: params.yaml
       hash: md5
-      md5: 2ec2508b4ab4e24c7d88196aa6eb2125
-      size: 266
+      md5: 03a7e94504f05c40073c187a232b3930
+      size: 519
     - path: src/mlops_project/cli.py
       hash: md5
       md5: e79d193f43bb1be90d63f091ca9b5e51
@@ -146,3 +146,31 @@ stages:
       hash: md5
       md5: 02e22e66ea2b9dbe0dabdc488036fcd9
       size: 86
+  gate:
+    cmd: python -m mlops_project.gate
+    deps:
+    - path: metrics/baseline.json
+      hash: md5
+      md5: 3bfdbdddc224370c22262e1dc8d849dd
+      size: 137
+    - path: metrics/metrics.json
+      hash: md5
+      md5: d1ed08940f0a4f269bd5f6e49637fc1c
+      size: 88
+    - path: metrics/slices.json
+      hash: md5
+      md5: eb0e217097ec152115ed88ec2819d8a0
+      size: 1163
+    - path: params.yaml
+      hash: md5
+      md5: 03a7e94504f05c40073c187a232b3930
+      size: 519
+    - path: src/mlops_project/gate.py
+      hash: md5
+      md5: 25f38dabe4cf8fa57f6cd0d3f6aea086
+      size: 4487
+    outs:
+    - path: reports/gate.json
+      hash: md5
+      md5: 977fb1ed1a93da6701062f93e2975fb5
+      size: 1258

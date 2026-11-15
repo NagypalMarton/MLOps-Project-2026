@@ -49,3 +49,14 @@ stages:
           cache: false
       - metrics/slices.json:
           cache: false
+  gate:
+    cmd: python -m mlops_project.gate
+    deps:
+      - metrics/metrics.json
+      - metrics/slices.json
+      - metrics/baseline.json
+      - src/mlops_project/gate.py
+      - params.yaml
+    outs:
+      - reports/gate.json:
+          cache: false
