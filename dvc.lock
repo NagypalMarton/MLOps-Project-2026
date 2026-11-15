@@ -7,6 +7,10 @@ stages:
       hash: md5
       md5: 20e00e5ba40f5ee6bcd9b87fbf2670f9
       size: 17055512
+    - path: reports/validation.json
+      hash: md5
+      md5: 02e22e66ea2b9dbe0dabdc488036fcd9
+      size: 86
     - path: src/mlops_project/config.py
       hash: md5
       md5: 21980bb1cc8084c723bf38dbb78a9e82
@@ -92,3 +96,31 @@ stages:
       hash: md5
       md5: d1ed08940f0a4f269bd5f6e49637fc1c
       size: 88
+  validate:
+    cmd: python -m mlops_project.validate
+    deps:
+    - path: data/hotel_bookings.csv
+      hash: md5
+      md5: 20e00e5ba40f5ee6bcd9b87fbf2670f9
+      size: 17055512
+    - path: src/mlops_project/config.py
+      hash: md5
+      md5: 21980bb1cc8084c723bf38dbb78a9e82
+      size: 1246
+    - path: src/mlops_project/data.py
+      hash: md5
+      md5: 74c7533e396b5236000b113a563259a1
+      size: 3966
+    - path: src/mlops_project/schemas.py
+      hash: md5
+      md5: ecefd5c173050c26ae4f2d7756f93bf1
+      size: 5986
+    - path: src/mlops_project/validate.py
+      hash: md5
+      md5: 556002842c4b4622fca068b6c4bd70a9
+      size: 1208
+    outs:
+    - path: reports/validation.json
+      hash: md5
+      md5: 02e22e66ea2b9dbe0dabdc488036fcd9
+      size: 86

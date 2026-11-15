@@ -23,3 +23,40 @@ missing companies, one negative ADR, and 180 rows with zero adults, children,
 and babies. Cleaning produces 119,210 model-input rows. Both contracts are
 validated in the data preparation path, and the schema tests cover strict
 columns, negative ADR rejection, and zero-guest rejection.
+
+## R2: Validation gate in the DVC pipeline
+
+The `validate` stage in [`dvc.yaml`](../dvc.yaml) runs the `Ingestion` contract
+and writes the cache-disabled verdict
+[`reports/validation.json`](../reports/validation.json). The `prepare` stage
+declares that verdict as a dependency; this is the gate edge. A validation
+failure exits with code 1, so DVC stops before `prepare`.
+
+The failure demonstration is:
+
+```text
+> uv run python scripts/demo_validation_gate.py
+Planted invalid lead_time=999999 in the first data row.
+Running stage 'validate':
+> python -m mlops_project.validate
+Data validation failed; see reports/validation.json.
+ERROR: failed to reproduce 'validate': failed to run:
+python -m mlops_project.validate, exited with 1
+dvc repro validate exited with code 255.
+Restored data/hotel_bookings.csv exactly.
+restored_md5=20E00E5BA40F5EE6BCD9B87FBF2670F9
+```
+
+The resulting report contained:
+
+```json
+{
+  "valid": false,
+  "rows": 119390,
+  "columns": 32,
+  "error": "Column 'lead_time' failed element-wise validator number 1: less_than_or_equal_to(1000) failure cases: 999999"
+}
+```
+
+After restoration, `uv run dvc repro` completed the validation and preparation
+stages, and the second run reported `Data and pipelines are up to date`.

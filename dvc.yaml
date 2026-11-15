@@ -1,8 +1,20 @@
 stages:
+  validate:
+    cmd: python -m mlops_project.validate
+    deps:
+      - data/hotel_bookings.csv
+      - src/mlops_project/config.py
+      - src/mlops_project/data.py
+      - src/mlops_project/schemas.py
+      - src/mlops_project/validate.py
+    outs:
+      - reports/validation.json:
+          cache: false
   prepare:
     cmd: python -m mlops_project.prepare
     deps:
       - data/hotel_bookings.csv
+      - reports/validation.json
       - src/mlops_project/config.py
       - src/mlops_project/data.py
       - src/mlops_project/schemas.py

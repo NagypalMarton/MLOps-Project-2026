@@ -54,6 +54,12 @@ make up                       # or: docker compose up -d --wait
 # Execute the full pipeline
 make repro                    # or: dvc repro
 
+# Run only the ingestion validation gate
+make validate                 # or: dvc repro validate
+
+# Demonstrate rejection and exact restoration of invalid input
+make validation-demo
+
 # Find MLflow runs trained on the current DVC dataset version
 runs-for-data
 
