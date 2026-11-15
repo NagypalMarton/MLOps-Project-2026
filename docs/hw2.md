@@ -257,3 +257,19 @@ booking guest belongs to that group. A legitimate audit would require a
 documented, consented protected-attribute field with an approved use and
 enough support, collected during dataset design before training and evaluation;
 that did not happen for this historical export.
+
+## R9: What the gate cannot catch
+
+These gates establish structural validity and measured test-set performance,
+but they are not a complete production assurance system. The ingestion
+contract cannot detect a plausible but semantically wrong value, a duplicated
+booking, or a label that was silently changed upstream. The model gate cannot
+detect future temporal drift, calibration failure, data leakage that produces
+plausible test metrics, or a change in the business cost of false positives
+and false negatives. The selection-rate report is also not a causal fairness
+audit and cannot establish protected-group treatment because the dataset lacks
+validated protected attributes. Finally, the gate does not prove that MLflow,
+Silo, or the registry remain available after the run. Those concerns require
+later drift monitoring, data lineage checks, calibration/cost analysis,
+approved fairness data, and service/infrastructure monitoring rather than
+another static threshold in this homework.
