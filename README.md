@@ -63,6 +63,9 @@ make validation-demo
 # Find MLflow runs trained on the current DVC dataset version
 runs-for-data
 
+# Publish the latest model only when the recorded gate is GO
+uv run python -m mlops_project.publish
+
 # View pipeline DAG
 make dag                      # or: dvc dag
 
@@ -75,6 +78,11 @@ and Silo, and creates the `mlflow-artifacts` and `dvc-data` buckets idempotently
 MLflow is available at
 `http://localhost:5000`; Silo's API and console are at ports `9000` and `9001`.
 The Silo remote uses `http://localhost:9000` from the host.
+
+Training logs the model and writes `model/model.pkl`, but registry publication
+is gate-protected. The DVC `gate` stage publishes only a passing verdict;
+running the publish command directly refuses when `reports/gate.json` is not
+`pass`.
 
 ## Next
 

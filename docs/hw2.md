@@ -153,3 +153,37 @@ restored_gate_exit=0
 
 The original metrics file and passing verdict were restored after the
 demonstration.
+
+## R6: The gate has teeth
+
+Training and publication are separate paths. The train stage always leaves
+`model/model.pkl` and logs the candidate to MLflow, while
+[`src/mlops_project/publish.py`](../src/mlops_project/publish.py) reads
+`reports/gate.json` before creating a registry version or assigning the
+`staging` alias. The `gate` stage calls publication only after a `pass`; a
+`fail` exits before publication. This preserves a failed model artifact for
+diagnosis instead of deleting it.
+
+The reproducible demonstration command is:
+
+```text
+uv run python scripts/demo_model_gate.py
+```
+
+It temporarily changes `model.max_iter` from `1000` to `1`, runs the complete
+pipeline, and restores the parameter afterward. The observed output was:
+
+```text
+gate_status=fail passed=6 failed=1 skipped=1
+dvc_repro_exit=255
+Model publication refused: reports/gate.json is not a GO verdict (status='fail').
+publish_exit=1
+model_exists=True
+gate_status=pass passed=7 failed=0 skipped=1
+published model=hotel-cancel-predictor version=4 alias=staging run_id=364ef4d699dd460ca9551489105fe51b
+restored_dvc_repro_exit=0
+```
+
+The failed run therefore stops at the gate, the independent publication
+command refuses it, and the trained `model/model.pkl` remains available.
+Restoration returns the committed state to GO.

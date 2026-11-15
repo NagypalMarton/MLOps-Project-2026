@@ -129,6 +129,10 @@ def main() -> None:
     )
     if verdict["status"] == "fail":
         raise SystemExit(1)
+    if verdict["status"] == "pass":
+        from .publish import publish_model
+
+        publish_model()
 
 
 if __name__ == "__main__":

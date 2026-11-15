@@ -1,4 +1,5 @@
 from mlops_project.gate import evaluate_gate
+from mlops_project.publish import publish_model
 
 
 CRITERIA = {
@@ -50,3 +51,17 @@ def test_gate_skips_missing_baseline():
 
     assert verdict["status"] == "pass"
     assert verdict["skipped"] == 1
+
+
+def test_publish_refuses_non_go_verdict(tmp_path):
+    verdict_path = tmp_path / "gate.json"
+    run_path = tmp_path / "latest_run.json"
+    verdict_path.write_text('{"status": "fail"}', encoding="utf-8")
+    run_path.write_text('{"run_id": "unused"}', encoding="utf-8")
+
+    try:
+        publish_model(verdict_path, run_path)
+    except RuntimeError as error:
+        assert "publication refused" in str(error)
+    else:
+        raise AssertionError("A failed verdict must refuse publication.")

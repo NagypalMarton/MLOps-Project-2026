@@ -5,10 +5,9 @@ import os
 import subprocess
 import sys
 from configparser import ConfigParser
+from pathlib import Path
 import mlflow
 import mlflow.sklearn as mlflow_sklearn
-from mlflow.tracking import MlflowClient
-from mlflow.exceptions import RestException
 
 import yaml
 from dataclasses import replace
@@ -113,7 +112,7 @@ def _settings_from_params(settings: Settings) -> Settings:
     return replace(settings, max_iter=int(max_iter))
 
 
-def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> None:
+def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> str:
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if not tracking_uri or not tracking_uri.strip():
         raise EnvironmentError("MLFLOW_TRACKING_URI must be configured.")
@@ -133,30 +132,12 @@ def log_mlflow_run(settings, model, metrics, y_test, y_pred, y_pred_proba) -> No
         mlflow_sklearn.log_model(model, "model")
         _log_classification_plots(y_test, y_pred, y_pred_proba)
 
-        model_name = "hotel-cancel-predictor"
-        client = MlflowClient()
-        try:
-            client.get_registered_model(model_name)
-        except RestException:
-            client.create_registered_model(model_name)
-        version = client.create_model_version(
-            name=model_name,
-            source=f"runs:/{run.info.run_id}/model",
-            run_id=run.info.run_id,
+        Path("reports").mkdir(parents=True, exist_ok=True)
+        Path("reports/latest_run.json").write_text(
+            json.dumps({"run_id": run.info.run_id}, indent=2) + "\n",
+            encoding="utf-8",
         )
-        metric_name = "f1"
-        versions = client.search_model_versions(filter_string=f"name='{model_name}'")
-        best_version = max(
-            (
-                (v.version, client.get_run(v.run_id).data.metrics.get(metric_name, 0.0))
-                for v in versions
-                if v.run_id
-            ),
-            key=lambda item: item[1],
-            default=(None, -1.0),
-        )[0]
-        if version.version == best_version:
-            client.set_registered_model_alias(model_name, "staging", version.version)
+        return run.info.run_id
 
 
 def main() -> None:

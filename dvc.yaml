@@ -33,6 +33,8 @@ stages:
       - params.yaml
     outs:
       - model/model.pkl
+      - reports/latest_run.json:
+          cache: false
   evaluate:
     cmd: python -m mlops_project.evaluate
     deps:
@@ -55,7 +57,9 @@ stages:
       - metrics/metrics.json
       - metrics/slices.json
       - metrics/baseline.json
+      - reports/latest_run.json
       - src/mlops_project/gate.py
+      - src/mlops_project/publish.py
       - params.yaml
     outs:
       - reports/gate.json:
