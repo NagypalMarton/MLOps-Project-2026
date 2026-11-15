@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 from .config import Settings
+from .schemas import validate_ingestion, validate_model_input
 
 
 def load_dataframe(settings: Settings) -> pd.DataFrame:
@@ -63,15 +64,32 @@ def _preprocess_features(df: pd.DataFrame) -> np.ndarray:
         return np.empty((len(df), 0))
 
 
+def _clean_for_model(frame: pd.DataFrame) -> pd.DataFrame:
+        cleaned = frame.drop(
+            columns=["reservation_status", "reservation_status_date"]
+        ).copy()
+        cleaned["children"] = cleaned["children"].fillna(0.0)
+        cleaned["country"] = cleaned["country"].fillna("NULL")
+        cleaned["agent"] = cleaned["agent"].fillna(0.0)
+        cleaned["company"] = cleaned["company"].fillna(0.0)
+        cleaned["adr"] = cleaned["adr"].clip(lower=0.0)
+        cleaned["total_guests"] = (
+            cleaned["adults"] + cleaned["children"] + cleaned["babies"]
+        )
+        return cleaned.loc[cleaned["total_guests"] > 0].reset_index(drop=True)
+
+
 def build_dataset(settings: Settings, frame: pd.DataFrame | None = None):
     """Preprocess and stratified-split the dataset."""
     frame = load_dataframe(settings) if frame is None else frame
+    validate_ingestion(frame)
     if settings.target_column not in frame.columns:
         raise KeyError(
             f"Target column '{settings.target_column}' not in data "
             f"(columns: {list(frame.columns)}). Set TARGET_COLUMN in .env."
         )
     # Separate features and target
+    frame = validate_model_input(_clean_for_model(frame))
     y = frame[settings.target_column]
     X = frame.drop(columns=[settings.target_column])
     # Preprocess features to numeric array
