@@ -87,6 +87,21 @@ is gate-protected. The DVC `gate` stage publishes only a passing verdict;
 running the publish command directly refuses when `reports/gate.json` is not
 `pass`.
 
+Before running DVC commands that access Silo from a fresh shell, export the
+credentials from `.env`; DVC does not load dotenv files itself:
+
+```powershell
+$env:AWS_ACCESS_KEY_ID = "minioadmin"
+$env:AWS_SECRET_ACCESS_KEY = "minioadmin"
+$env:AWS_DEFAULT_REGION = "us-east-1"
+uv run dvc pull
+```
+
+In a POSIX shell, use `set -a; . ./.env; set +a` before `dvc pull`. The
+prepared dataset and model are reproducible pipeline outputs and are marked
+`cache: false`, so a fresh clone pulls only the DVC-tracked source dataset and
+recreates those outputs with `dvc repro`.
+
 ## Next
 
 1. Add your dataset to `data/` and document it in `docs/DATA_DICTIONARY.md`.
