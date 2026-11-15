@@ -13,6 +13,10 @@ slices:
       - No Deposit
       - Non Refund
       - Refundable
+fairness:
+  slice: deposit_type
+  metric: selection_rate
+  min_support: 100
 criteria_version: "hw2-r4-v1"
 acceptance:
   absolute_floors:

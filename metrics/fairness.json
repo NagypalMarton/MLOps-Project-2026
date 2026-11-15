@@ -1,0 +1,34 @@
+{
+  "column": "deposit_type",
+  "eligible_groups": [
+    "No Deposit",
+    "Non Refund"
+  ],
+  "groups": [
+    {
+      "n": 26108,
+      "positive_labels": 7399,
+      "predicted_positive": 4491,
+      "selection_rate": 0.172,
+      "value": "No Deposit"
+    },
+    {
+      "n": 3661,
+      "positive_labels": 3642,
+      "predicted_positive": 3655,
+      "selection_rate": 0.9984,
+      "value": "Non Refund"
+    },
+    {
+      "n": 34,
+      "positive_labels": 9,
+      "predicted_positive": 31,
+      "selection_rate": 0.9118,
+      "value": "Refundable"
+    }
+  ],
+  "metric": "selection_rate",
+  "min_support": 100,
+  "selection_rate_gap": 0.8264,
+  "slice": "deposit_type"
+}

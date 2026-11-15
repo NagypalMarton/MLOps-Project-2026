@@ -46,10 +46,13 @@ stages:
       - src/mlops_project/evaluate.py
     params:
       - slices
+      - fairness
     metrics:
       - metrics/metrics.json:
           cache: false
       - metrics/slices.json:
+          cache: false
+      - metrics/fairness.json:
           cache: false
   gate:
     cmd: python -m mlops_project.gate

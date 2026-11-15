@@ -9,8 +9,8 @@ stages:
       size: 17055512
     - path: params.yaml
       hash: md5
-      md5: 03a7e94504f05c40073c187a232b3930
-      size: 519
+      md5: 8a710a1a64e76cc3cc194b492822bee0
+      size: 595
     - path: reports/validation.json
       hash: md5
       md5: 02e22e66ea2b9dbe0dabdc488036fcd9
@@ -41,8 +41,8 @@ stages:
       size: 19237864
     - path: params.yaml
       hash: md5
-      md5: 03a7e94504f05c40073c187a232b3930
-      size: 519
+      md5: 8a710a1a64e76cc3cc194b492822bee0
+      size: 595
     - path: src/mlops_project/cli.py
       hash: md5
       md5: 38cfeae778fb1a7b5f645cb409799c00
@@ -70,7 +70,7 @@ stages:
       size: 2289
     - path: reports/latest_run.json
       hash: md5
-      md5: 81d7baa2f44c0992ccfd582f3ddeb7b8
+      md5: f073a4fa2a353ff3a47e0a1a52cfee32
       size: 54
   evaluate:
     cmd: python -m mlops_project.evaluate
@@ -93,14 +93,18 @@ stages:
       size: 3966
     - path: src/mlops_project/evaluate.py
       hash: md5
-      md5: 61e8febe6ca4bf508d02ec49c3f71c76
-      size: 2451
+      md5: e778083de2fe5a418013a6ac6da53e2a
+      size: 4450
     - path: src/mlops_project/model.py
       hash: md5
       md5: 46881f694f7d8b7b372c1ffe1f101ee3
       size: 1127
     params:
       params.yaml:
+        fairness:
+          slice: deposit_type
+          metric: selection_rate
+          min_support: 100
         slices:
         - name: hotel
           column: hotel
@@ -114,6 +118,10 @@ stages:
           - Non Refund
           - Refundable
     outs:
+    - path: metrics/fairness.json
+      hash: md5
+      md5: 16fbf491b4f1672d88e3a8e12ebdaf5a
+      size: 715
     - path: metrics/metrics.json
       hash: md5
       md5: d1ed08940f0a4f269bd5f6e49637fc1c
@@ -167,11 +175,11 @@ stages:
       size: 1163
     - path: params.yaml
       hash: md5
-      md5: 03a7e94504f05c40073c187a232b3930
-      size: 519
+      md5: 8a710a1a64e76cc3cc194b492822bee0
+      size: 595
     - path: reports/latest_run.json
       hash: md5
-      md5: 81d7baa2f44c0992ccfd582f3ddeb7b8
+      md5: f073a4fa2a353ff3a47e0a1a52cfee32
       size: 54
     - path: src/mlops_project/gate.py
       hash: md5

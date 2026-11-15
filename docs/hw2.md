@@ -220,3 +220,40 @@ non-zero. It therefore cannot silently become a GO or publish a model:
 ```text
 gate_status=skipped passed=6 failed=0 skipped=2
 ```
+
+## R8: Fairness and subgroup check
+
+The evaluation reports a **selection-rate gap** across the `deposit_type`
+groups in [`metrics/fairness.json`](../metrics/fairness.json). Selection rate
+is the fraction of bookings for which the model predicts cancellation. This
+axis is useful here because a high predicted-cancellation rate changes how
+revenue and operations teams allocate review effort and cancellation
+mitigation; it is more directly actionable for this classifier than choosing a
+generic aggregate gap without a stakeholder interpretation.
+
+The measured report is:
+
+```json
+{
+  "slice": "deposit_type",
+  "eligible_groups": ["No Deposit", "Non Refund"],
+  "selection_rate_gap": 0.8264
+}
+```
+
+The `Refundable` group has only `n=34` test rows, below the configured
+`min_support=100`, so it is reported with its rate but excluded from the
+stable gap calculation. The gap is **reported, not gated**. The project has
+not established a policy target for equal selection rates, and deposit policy
+is a business-risk axis rather than a protected attribute. Turning this
+observational check into a GO/NO-GO rule without a stakeholder-approved
+policy could reject useful models or hide the small-slice uncertainty.
+
+One group I would want to audit but cannot is customer nationality, especially
+potentially vulnerable or protected nationalities. The dataset contains a
+`country` booking field, but it is not a validated person-level protected
+attribute, has substantial missingness, and does not establish that the
+booking guest belongs to that group. A legitimate audit would require a
+documented, consented protected-attribute field with an approved use and
+enough support, collected during dataset design before training and evaluation;
+that did not happen for this historical export.
