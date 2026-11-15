@@ -1,0 +1,57 @@
+[
+  {
+    "slice": "hotel",
+    "column": "hotel",
+    "value": "City Hotel",
+    "n": 19648,
+    "positive_labels": 8303,
+    "accuracy": 0.7817,
+    "precision": 0.7875,
+    "recall": 0.7817,
+    "f1": 0.7755
+  },
+  {
+    "slice": "hotel",
+    "column": "hotel",
+    "value": "Resort Hotel",
+    "n": 10155,
+    "positive_labels": 2747,
+    "accuracy": 0.8141,
+    "precision": 0.805,
+    "recall": 0.8141,
+    "f1": 0.8023
+  },
+  {
+    "slice": "deposit_type",
+    "column": "deposit_type",
+    "value": "No Deposit",
+    "n": 26108,
+    "positive_labels": 7399,
+    "accuracy": 0.7647,
+    "precision": 0.748,
+    "recall": 0.7647,
+    "f1": 0.7445
+  },
+  {
+    "slice": "deposit_type",
+    "column": "deposit_type",
+    "value": "Non Refund",
+    "n": 3661,
+    "positive_labels": 3642,
+    "accuracy": 0.9964,
+    "precision": 0.9965,
+    "recall": 0.9964,
+    "f1": 0.9955
+  },
+  {
+    "slice": "deposit_type",
+    "column": "deposit_type",
+    "value": "Refundable",
+    "n": 34,
+    "positive_labels": 9,
+    "accuracy": 0.3529,
+    "precision": 0.8121,
+    "recall": 0.3529,
+    "f1": 0.2767
+  }
+]

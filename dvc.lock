@@ -7,6 +7,10 @@ stages:
       hash: md5
       md5: 20e00e5ba40f5ee6bcd9b87fbf2670f9
       size: 17055512
+    - path: params.yaml
+      hash: md5
+      md5: 2ec2508b4ab4e24c7d88196aa6eb2125
+      size: 266
     - path: reports/validation.json
       hash: md5
       md5: 02e22e66ea2b9dbe0dabdc488036fcd9
@@ -26,19 +30,19 @@ stages:
     outs:
     - path: data/prepared.csv
       hash: md5
-      md5: 5648bfb45051f58785f826b1e0012233
-      size: 16535121
+      md5: 4ecff796369c509950edfb5a0e18bca9
+      size: 19237864
   train:
     cmd: python -m mlops_project.train
     deps:
     - path: data/prepared.csv
       hash: md5
-      md5: 5648bfb45051f58785f826b1e0012233
-      size: 16535121
+      md5: 4ecff796369c509950edfb5a0e18bca9
+      size: 19237864
     - path: params.yaml
       hash: md5
-      md5: 67f4e7c2193a2dd1f066448570563e38
-      size: 55
+      md5: 2ec2508b4ab4e24c7d88196aa6eb2125
+      size: 266
     - path: src/mlops_project/cli.py
       hash: md5
       md5: e79d193f43bb1be90d63f091ca9b5e51
@@ -69,8 +73,8 @@ stages:
     deps:
     - path: data/prepared.csv
       hash: md5
-      md5: 5648bfb45051f58785f826b1e0012233
-      size: 16535121
+      md5: 4ecff796369c509950edfb5a0e18bca9
+      size: 19237864
     - path: model/model.pkl
       hash: md5
       md5: 775668eb880383ca165316484116901e
@@ -85,17 +89,35 @@ stages:
       size: 3966
     - path: src/mlops_project/evaluate.py
       hash: md5
-      md5: 5c139730927924c706bbdcda012f7b11
-      size: 992
+      md5: 61e8febe6ca4bf508d02ec49c3f71c76
+      size: 2451
     - path: src/mlops_project/model.py
       hash: md5
       md5: 46881f694f7d8b7b372c1ffe1f101ee3
       size: 1127
+    params:
+      params.yaml:
+        slices:
+        - name: hotel
+          column: hotel
+          values:
+          - City Hotel
+          - Resort Hotel
+        - name: deposit_type
+          column: deposit_type
+          values:
+          - No Deposit
+          - Non Refund
+          - Refundable
     outs:
     - path: metrics/metrics.json
       hash: md5
       md5: d1ed08940f0a4f269bd5f6e49637fc1c
       size: 88
+    - path: metrics/slices.json
+      hash: md5
+      md5: eb0e217097ec152115ed88ec2819d8a0
+      size: 1163
   validate:
     cmd: python -m mlops_project.validate
     deps:

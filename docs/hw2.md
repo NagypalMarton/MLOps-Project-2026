@@ -60,3 +60,31 @@ The resulting report contained:
 
 After restoration, `uv run dvc repro` completed the validation and preparation
 stages, and the second run reported `Data and pipelines are up to date`.
+
+## R3: Slice evaluation
+
+The `evaluate` stage writes aggregate metrics and the cache-disabled
+[`metrics/slices.json`](../metrics/slices.json). The two slice definitions live
+in [`params.yaml`](../params.yaml):
+
+- `hotel`: City Hotel versus Resort Hotel. Operations teams care because the
+  properties have different booking mixes and cancellation patterns.
+- `deposit_type`: No Deposit, Non Refund, and Refundable. Revenue and risk
+  teams care because deposit policy changes the financial exposure of a
+  cancellation.
+
+Each row contains `n`, `positive_labels`, and the classification metrics:
+
+| slice | value | n | positive labels | F1 |
+|---|---|---:|---:|---:|
+| hotel | City Hotel | 19,648 | 8,303 | 0.7755 |
+| hotel | Resort Hotel | 10,155 | 2,747 | 0.8023 |
+| deposit_type | No Deposit | 26,108 | 7,399 | 0.7445 |
+| deposit_type | Non Refund | 3,661 | 3,642 | 0.9955 |
+| deposit_type | Refundable | 34 | 9 | 0.2767 |
+
+The slice columns are copied from the raw rows during `prepare`, before the
+feature encoder fills missing values or applies scaling. If slicing happened
+after preprocessing, the stakeholder-facing categories would be lost or
+replaced by encoded numbers, and imputation could move a missing booking into a
+group without making that change visible in the slice table.

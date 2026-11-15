@@ -1,3 +1,15 @@
 # Hyperparameters for the model
 model:
   max_iter: 1000
+slices:
+  - name: hotel
+    column: hotel
+    values:
+      - City Hotel
+      - Resort Hotel
+  - name: deposit_type
+    column: deposit_type
+    values:
+      - No Deposit
+      - Non Refund
+      - Refundable
