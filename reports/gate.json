@@ -16,7 +16,7 @@
       "actual": 0.7846,
       "name": "regression.f1",
       "status": "pass",
-      "threshold": 0.776
+      "threshold": 0.7746
     },
     {
       "actual": 0.7755,

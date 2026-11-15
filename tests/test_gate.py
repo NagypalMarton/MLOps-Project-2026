@@ -49,8 +49,12 @@ def test_gate_skips_missing_baseline():
         CRITERIA,
     )
 
-    assert verdict["status"] == "pass"
+    assert verdict["status"] == "skipped"
     assert verdict["skipped"] == 1
+    regression = next(
+        check for check in verdict["checks"] if check["name"] == "regression.f1"
+    )
+    assert regression["status"] == "skipped"
 
 
 def test_publish_refuses_non_go_verdict(tmp_path):

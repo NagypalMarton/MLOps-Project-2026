@@ -66,6 +66,9 @@ runs-for-data
 # Publish the latest model only when the recorded gate is GO
 uv run python -m mlops_project.publish
 
+# Refresh the committed gate baseline from the staging alias
+uv run python -m mlops_project.refresh_baseline
+
 # View pipeline DAG
 make dag                      # or: dvc dag
 

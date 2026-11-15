@@ -155,8 +155,8 @@ stages:
     deps:
     - path: metrics/baseline.json
       hash: md5
-      md5: 3bfdbdddc224370c22262e1dc8d849dd
-      size: 137
+      md5: dd9077f005f3b912ba0fa318bb8c21b5
+      size: 167
     - path: metrics/metrics.json
       hash: md5
       md5: d1ed08940f0a4f269bd5f6e49637fc1c
@@ -175,14 +175,18 @@ stages:
       size: 54
     - path: src/mlops_project/gate.py
       hash: md5
-      md5: 3ebf477c56e94161d9635a0b215f7884
-      size: 4595
+      md5: c4e3071e1fb1bc1678fe10fb8d4e6450
+      size: 4799
     - path: src/mlops_project/publish.py
       hash: md5
-      md5: e7fdd97e8edad45eac900021b61a8a89
-      size: 1789
+      md5: 3516e0964a0e006647ff869128c535c3
+      size: 1840
+    - path: src/mlops_project/refresh_baseline.py
+      hash: md5
+      md5: 837343c59e6dcf6c3759953b173ddaaa
+      size: 1868
     outs:
     - path: reports/gate.json
       hash: md5
-      md5: 977fb1ed1a93da6701062f93e2975fb5
-      size: 1258
+      md5: 4073d14d072e42c6d746919cd3760ee6
+      size: 1259

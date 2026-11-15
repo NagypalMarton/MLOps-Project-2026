@@ -105,10 +105,10 @@ test set, always predicting zero scored accuracy `0.6292` and weighted F1
 merely accepting the class-frequency baseline.
 
 The recorded regression baseline is
-[`metrics/baseline.json`](../metrics/baseline.json), taken from the committed
-HW1 aggregate at commit `4fae08d`: F1 `0.7860`. F1 is the named primary metric.
-The tolerance is `0.01`, so the regression floor is `0.7760`; the current
-`0.7846` is only `0.0014` below that recorded baseline and passes.
+[`metrics/baseline.json`](../metrics/baseline.json), refreshed from the
+current `hotel-cancel-predictor@staging` champion: F1 `0.7846`. F1 is the
+named primary metric. The tolerance is `0.01`, so the regression floor is
+`0.7746`; the current `0.7846` matches the recorded champion and passes.
 
 For slices, the F1 floor is `0.70` with `min_support=100`. The smallest
 supported slice is `deposit_type=Non Refund` with `n=3,661` and F1 `0.9955`;
@@ -187,3 +187,36 @@ restored_dvc_repro_exit=0
 The failed run therefore stops at the gate, the independent publication
 command refuses it, and the trained `model/model.pkl` remains available.
 Restoration returns the committed state to GO.
+
+## R7: The recorded baseline
+
+The committed [`metrics/baseline.json`](../metrics/baseline.json) contains the
+champion metrics consumed by the gate. It records the source alias and linked
+MLflow run ID as well as the `accuracy` and primary `f1` metric:
+
+```json
+{
+  "accuracy": 0.7927,
+  "f1": 0.7846,
+  "model_version": "24",
+  "run_id": "002eb38c227248e88ea04ee3a012f789",
+  "source": "hotel-cancel-predictor@staging"
+}
+```
+
+Refresh it from the registry with the alias-based command below; no model
+version number is used to locate the champion:
+
+```text
+uv run python -m mlops_project.refresh_baseline
+refreshed baseline from hotel-cancel-predictor@staging run_id=002eb38c227248e88ea04ee3a012f789 f1=0.7846
+```
+
+The no-baseline path is also explicit. If `metrics/baseline.json` is absent,
+the gate writes a verdict whose regression check has status `skipped`, reports
+the skipped count, gives the overall verdict status `skipped`, and exits
+non-zero. It therefore cannot silently become a GO or publish a model:
+
+```text
+gate_status=skipped passed=6 failed=0 skipped=2
+```

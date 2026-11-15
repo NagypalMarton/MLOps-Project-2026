@@ -60,6 +60,7 @@ stages:
       - reports/latest_run.json
       - src/mlops_project/gate.py
       - src/mlops_project/publish.py
+      - src/mlops_project/refresh_baseline.py
       - params.yaml
     outs:
       - reports/gate.json:

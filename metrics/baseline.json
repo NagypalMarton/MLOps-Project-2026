@@ -1,6 +1,7 @@
 {
-  "source": "HW1 committed aggregate metrics at commit 4fae08d",
-  "primary_metric": "f1",
-  "accuracy": 0.7945,
-  "f1": 0.786
+  "accuracy": 0.7927,
+  "f1": 0.7846,
+  "model_version": "24",
+  "run_id": "002eb38c227248e88ea04ee3a012f789",
+  "source": "hotel-cancel-predictor@staging"
 }

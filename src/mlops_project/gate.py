@@ -96,7 +96,14 @@ def evaluate_gate(
     failed = sum(check["status"] == "fail" for check in checks)
     skipped = sum(check["status"] == "skipped" for check in checks)
     passed = sum(check["status"] == "pass" for check in checks)
-    status = "fail" if failed else "pass" if passed else "skipped"
+    baseline_missing = baseline is None
+    status = (
+        "fail"
+        if failed
+        else "skipped"
+        if baseline_missing or not passed
+        else "pass"
+    )
     return {
         "criteria_version": acceptance["criteria_version"],
         "status": status,
@@ -114,7 +121,11 @@ def main() -> None:
     acceptance = dict(params["acceptance"])
     acceptance["criteria_version"] = params["criteria_version"]
     baseline_path = Path(acceptance["regression"]["baseline_file"])
-    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    baseline = (
+        json.loads(baseline_path.read_text(encoding="utf-8"))
+        if baseline_path.exists()
+        else None
+    )
     verdict = evaluate_gate(metrics, slices, baseline, acceptance)
     VERDICT_PATH.parent.mkdir(parents=True, exist_ok=True)
     VERDICT_PATH.write_text(
@@ -127,7 +138,7 @@ def main() -> None:
         f"failed={verdict['failed']} "
         f"skipped={verdict['skipped']}"
     )
-    if verdict["status"] == "fail":
+    if verdict["status"] in {"fail", "skipped"}:
         raise SystemExit(1)
     if verdict["status"] == "pass":
         from .publish import publish_model

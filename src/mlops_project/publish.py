@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from dotenv import load_dotenv
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 
@@ -16,6 +17,7 @@ def publish_model(
     verdict_path: Path = VERDICT_PATH,
     run_path: Path = RUN_PATH,
 ) -> str:
+    load_dotenv()
     verdict = json.loads(verdict_path.read_text(encoding="utf-8"))
     if verdict.get("status") != "pass":
         raise RuntimeError(
